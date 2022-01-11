@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  productapi:
+   container_name: productapi_container 
+   image: rajadhyaksharahul/myrepository:productapi
+   environment:
+    - ConnectionString=Server=sqldata; Initial Catalog=ProductsDB; User ID=SA; Password=Pass@word03
+    - APNETCORE_ENVIRONMENT=Development
+   build:
+    context: . 
+    dockerfile: ProductAPI/Dockerfile
+   depends_on:
+     - sqldata
+   ports:
+    - "8001:80"  
+  
+  customerapi:
+    container_name: cutomerapi_container
+    image: rajadhyaksharahul/myrepository:customerapi
+    environment:
+        - ConnectionString=Server=sqldata; Initial Catalog=CustomersDB; User ID=SA; Password=Pass@word03
+        - APNETCORE_ENVIRONMENT=Development
+    build:
+        context: . 
+        dockerfile: CustomerAPI/Dockerfile
+    depends_on:
+         - sqldata
+    ports:
+        - "8002:80"  
+
+  microservicegatewayapi:
+   container_name: microservicegatewayapi_container
+   image: rajadhyaksharahul/myrepository:microservicegatewayapi
+   environment:
+       - APNETCORE_ENVIRONMENT=Development
+   build:
+        context: . 
+        dockerfile: MicroServiceGatewayAPI/Dockerfile
+   depends_on:
+         - productapi
+         - customerapi
+   ports:
+        - "8003:80"  
+  
+  sqldata:
+   image: mcr:microsoft.com/mssql/server:2019-latest
+   restart: always
+   environment:
+   - SA_PASSWORD= Pass@word03
+   - ACCEPT_EULA= Y
+   ports:
+   - "5445:1433"  
